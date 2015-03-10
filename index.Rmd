@@ -1,0 +1,54 @@
+---
+title       : Fred's Slides
+subtitle    : 
+author      : Fred Hope
+job         : Data Scientist
+framework   : io2012        # {io2012, html5slides, shower, dzslides, ...}
+highlighter : highlight.js  # {highlight.js, prettify, highlight}
+hitheme     : tomorrow      # 
+widgets     : []            # {mathjax, quiz, bootstrap}
+mode        : selfcontained # {standalone, draft}
+knit        : slidify::knit2slides
+
+--- .class #id
+
+Bodyweight over time
+
+```{r echo=F}
+library(ggplot2)
+library(reshape2)
+
+data <- read.csv("/Users/fred/Documents/Bodyweight 2015.txt",sep="\t",na.strings="x")
+data <- data[,-4]
+data$Date <- as.Date(data$Date,format="%m/%d")
+names(data) <- c("Date","Morning","Evening")
+data2 <- melt(data,id="Date")
+names(data2) <- c("Date","Time","Weight")
+data2 <- data2[!is.na(data2$Weight),]
+
+morningData <- data[!is.na(data$Morning),c(1,2)]
+eveningData <- data[!is.na(data$Evening),c(1,3)]
+
+ggplot(data2,aes(x=Date,y=Weight,group=Time,color=Time)) + geom_line() + xlab("Date") + ylab("Weight (lbs)") + ggtitle("Bodyweight over time")
+```
+
+---
+
+Job Application Status
+
+```{r results=F}
+info <- readLines("~/Documents/Job Apps.txt")
+info <- gsub("\t\t*","\t",info)
+con <- textConnection(info)
+jobs <- read.delim(con)
+close(con)
+
+totalapps <- nrow(jobs)
+accepted <- sum(jobs$Status=="follow-up")
+rejected <- sum(jobs$Status=="rejected")
+pending <- totalapps - accepted - rejected
+```
+
+```{r}
+cat("Job Apps (success-rejected-pending):"); paste(accepted,rejected,pending,sep="-")
+```
